@@ -1,4 +1,3 @@
-// src/comprar-boletos/page.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -39,21 +38,32 @@ export default function ComprarBoletosPage() {
   const ticketsSeleccionados = tickets.filter(t => t.seleccionado);
 
   return (
-    <main className="min-h-screen px-4 py-12 bg-gray-900 text-white">
+    <main className="min-h-screen px-4 py-12 bg-gray-200 text-gray-800">
       <div className="max-w-5xl mx-auto text-center">
-        <h1 className="text-4xl font-bold text-yellow-400 mb-4">Compra tus Boletos</h1>
-        <p className="text-lg text-gray-300 mb-6">Elige tus números favoritos y participa para ganar. ¡Cada boleto es una oportunidad!</p>
+        <h1 className="text-4xl font-bold text-[#b8860b] mb-4">Compra tus Boletos</h1>
+        <p className="text-lg text-gray-700 mb-6">
+          Elige tus números favoritos y participa para ganar. ¡Cada boleto es una oportunidad!
+        </p>
 
-        {/* Controles de generación y búsqueda */}
-        <TicketControls generarBoletos={generarBoletos} buscarTicket={buscarTicket} />
+        {/* Resumen de boletos seleccionados antes del grid */}
+        <TicketSummary
+          ticketsDisponibles={tickets}
+          setTickets={setTickets}
+        />
 
-        {/* Grid de boletos */}
-        <TicketGrid tickets={tickets} toggleTicket={toggleTicket} />
+        <TicketControls
+          tickets={tickets}
+          setTickets={setTickets}
+          generarBoletos={() => {}}
+          buscarTicket={buscarTicket}
+        />
 
-        {/* Resumen de boletos seleccionados */}
-        <TicketSummary ticketsSeleccionados={ticketsSeleccionados} removerTicket={removerTicket} />
+        {/* Grid de todos los boletos */}
+        <TicketGrid
+          tickets={tickets}
+          toggleTicket={toggleTicket}
+        />
 
-        {/* Botón finalizar compra */}
         {ticketsSeleccionados.length > 0 && (
           <button
             className="mt-4 bg-green-500 hover:bg-green-600 px-6 py-2 rounded text-white font-semibold"
@@ -63,9 +73,11 @@ export default function ComprarBoletosPage() {
           </button>
         )}
 
-        {/* Ventana emergente de checkout */}
         {checkoutOpen && (
-          <CheckoutModal ticketsSeleccionados={ticketsSeleccionados} onClose={() => setCheckoutOpen(false)} />
+          <CheckoutModal
+            ticketsSeleccionados={ticketsSeleccionados}
+            onClose={() => setCheckoutOpen(false)}
+          />
         )}
       </div>
     </main>

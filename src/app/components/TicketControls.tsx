@@ -1,68 +1,75 @@
+// src/components/TicketControls.tsx
 "use client";
 
-import React, { useState } from 'react';
+import React, { Dispatch, SetStateAction, useState } from "react";
+import { Ticket } from "./TicketGrid";
+import GenerarBoletosModal from "./GenerarBoletosModal";
 
-interface TicketControlsProps {
+export interface TicketControlsProps {
+  tickets: Ticket[];
+  setTickets: Dispatch<SetStateAction<Ticket[]>>;
   generarBoletos: (cantidad: number) => void;
   buscarTicket: (numero: string) => void;
 }
 
-const TicketControls: React.FC<TicketControlsProps> = ({ generarBoletos, buscarTicket }) => {
+const TicketControls: React.FC<TicketControlsProps> = ({
+  tickets,
+  setTickets,
+  generarBoletos,
+  buscarTicket,
+}) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [cantidad, setCantidad] = useState(1);
-  const [numeroBuscar, setNumeroBuscar] = useState('');
+  const [buscarNumero, setBuscarNumero] = useState<string>("");
+  const [busquedaNoDisponible, setBusquedaNoDisponible] = useState<string>("");
 
-  const opcionesCantidad = [1,2,3,4,5,6,7,8,9,10,15,20,30,40,50,60,70,100,200,300];
-
-  const handleGenerar = () => {
-    generarBoletos(cantidad);
-    setModalOpen(false);
+  const handleAbrirModal = () => {
+    setModalOpen(true);
   };
 
   const handleBuscar = () => {
-    if(numeroBuscar.trim() !== ''){
-      buscarTicket(numeroBuscar);
-      setNumeroBuscar('');
+    const numeroBuscado = buscarNumero.padStart(5, '0');
+    const encontrado = tickets.find(t => t.numero === numeroBuscado && !t.seleccionado);
+    if (encontrado) {
+      buscarTicket(numeroBuscado);
+      setBusquedaNoDisponible("");
+    } else {
+      setBusquedaNoDisponible("No disponible o ya seleccionado.");
     }
+    setBuscarNumero("");
   };
 
   return (
-    <div className="flex flex-col items-center mb-6">
-      <div className="flex space-x-2">
-        <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={() => setModalOpen(true)}>
-          Generar Boletos
-        </button>
-        <input 
-          type="text" 
-          placeholder="Buscar Boleto" 
-          value={numeroBuscar} 
-          onChange={e => setNumeroBuscar(e.target.value)}
-          className="border px-2 py-1 rounded" 
-        />
-        <button className="bg-green-500 text-white px-4 py-2 rounded" onClick={handleBuscar}>
-          Buscar
+    <div className="flex flex-col md:flex-row gap-4 items-center justify-center mb-6">
+      <div className="flex items-center gap-2">
+        <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded" onClick={handleAbrirModal}>
+          Maquinita de la Suerte
         </button>
       </div>
 
-      {modalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white text-black p-6 rounded shadow-lg w-80">
-            <h2 className="text-xl font-bold mb-4">Selecciona cantidad de boletos</h2>
-            <select 
-              value={cantidad} 
-              onChange={e => setCantidad(Number(e.target.value))}
-              className="w-full border p-2 rounded mb-4"
-            >
-              {opcionesCantidad.map(op => (
-                <option key={op} value={op}>{op}</option>
-              ))}
-            </select>
-            <div className="flex justify-end space-x-2">
-              <button className="px-4 py-2 bg-gray-300 rounded" onClick={() => setModalOpen(false)}>Cancelar</button>
-              <button className="px-4 py-2 bg-blue-500 text-white rounded" onClick={handleGenerar}>Generar</button>
-            </div>
-          </div>
+      <div className="flex flex-col items-start gap-1">
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            placeholder="Buscar boleto"
+            value={buscarNumero}
+            onChange={e => setBuscarNumero(e.target.value)}
+            className="border px-2 py-1 rounded"
+          />
+          <button className="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-1 rounded" onClick={handleBuscar}>
+            Buscar
+          </button>
         </div>
+        {busquedaNoDisponible && (
+          <span className="text-xs text-red-600">{busquedaNoDisponible}</span>
+        )}
+      </div>
+
+      {modalOpen && (
+        <GenerarBoletosModal
+          ticketsDisponibles={tickets}
+          setTickets={setTickets}
+          onClose={() => setModalOpen(false)}
+        />
       )}
     </div>
   );
